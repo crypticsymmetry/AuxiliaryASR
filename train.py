@@ -31,7 +31,7 @@ args1 = colossalai.get_default_parser().parse_args()
 torch.backends.cudnn.benchmark = True
 
 @click.command()
-@click.option('-p', '--config_path', default='./Configs/config.yml', type=str)
+@click.option('-p', '--config_path', default='Configs/config.yml', type=str)
 def main(config_path):
 
     colossalai.launch_from_torch(config="Configs/config.py")
