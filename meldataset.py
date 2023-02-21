@@ -24,15 +24,15 @@ np.random.seed(1)
 random.seed(1)
 DEFAULT_DICT_PATH = osp.join(osp.dirname(__file__), 'word_index_dict.txt')
 SPECT_PARAMS = {
-    "n_fft": 2048,
-    "win_length": 1200,
-    "hop_length": 300
+    "n_fft": 1024,
+    "win_length": 1024,
+    "hop_length": 256
 }
 MEL_PARAMS = {
     "n_mels": 80,
-    "n_fft": 2048,
-    "win_length": 1200,
-    "hop_length": 300
+    "n_fft": 1024,
+    "win_length": 1024,
+    "hop_length": 256
 }
 
 class MelDataset(torch.utils.data.Dataset):
