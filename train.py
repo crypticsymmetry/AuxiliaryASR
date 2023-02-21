@@ -27,14 +27,21 @@ logger.setLevel(logging.DEBUG)
 handler = StreamHandler()
 handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
-
+args1 = colossalai.get_default_parser().parse_args()
 torch.backends.cudnn.benchmark = True
 
 @click.command()
 @click.option('-p', '--config_path', default='./Configs/config.yml', type=str)
 def main(config_path):
 
-    colossalai.launch_from_torch(config="configs/config.py",)
+    colossalai.launch_from_torch(config="Configs/config.py",
+                                 rank=args1.rank,
+                                 world_size=args1.world_size,
+                                 host=args1.host,
+                                 port=args1.port,
+                                 backend=args1.backend,
+                        )
+
     config = yaml.safe_load(open(config_path))
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.mkdir(log_dir)
