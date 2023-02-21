@@ -34,13 +34,7 @@ torch.backends.cudnn.benchmark = True
 @click.option('-p', '--config_path', default='./Configs/config.yml', type=str)
 def main(config_path):
 
-    colossalai.launch_from_torch(config="Configs/config.py",
-                                 rank=args1.rank,
-                                 world_size=args1.world_size,
-                                 host=args1.host,
-                                 port=args1.port,
-                                 backend=args1.backend,
-                        )
+    colossalai.launch_from_torch(config="Configs/config.py")
 
     config = yaml.safe_load(open(config_path))
     log_dir = config['log_dir']
