@@ -100,7 +100,7 @@ def main(config_path):
                     scheduler=scheduler,
                     device=device,
                     train_dataloader=train_dataloader,
-                    val_dataloader=val_dataloader,
+                    val_dataloader=test_dataloader,
                     logger=logger)
 
     if config.get('pretrained_model', '') != '':
