@@ -2,7 +2,8 @@ from meldataset import build_dataloader
 from optimizers import build_optimizer
 from utils import *
 from models import build_model
-from trainer import Trainer
+#from trainer import Trainer
+from colossalai.trainer import Trainer
 
 import os
 import os.path as osp
@@ -14,9 +15,13 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import click
+import colossalai
+from colossalai.logging import get_dist_logger
 
 import logging
 from logging import StreamHandler
+
+logger1 = get_dist_logger()
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = StreamHandler()
@@ -28,6 +33,8 @@ torch.backends.cudnn.benchmark = True
 @click.command()
 @click.option('-p', '--config_path', default='./Configs/config.yml', type=str)
 def main(config_path):
+
+    colossalai.launch_from_torch(config="configs/config.py",)
     config = yaml.safe_load(open(config_path))
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.mkdir(log_dir)
@@ -80,8 +87,14 @@ def main(config_path):
     criterion = build_criterion(critic_params={
                 'ctc': {'blank': blank_index},
         })
+    
+    engine, train_dataloader, test_dataloader, _ = colossalai.initialize(model,
+                                                                    optimizer,
+                                                                    criterion,
+                                                                    train_dataloader,
+                                                                    test_dataloader)
 
-    trainer = Trainer(model=model,
+    trainer = Trainer(model=engine,
                     criterion=criterion,
                     optimizer=optimizer,
                     scheduler=scheduler,

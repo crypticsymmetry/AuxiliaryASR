@@ -12,7 +12,8 @@ import torch
 from torch import nn
 import torch.nn.functional as F
 import torchaudio
-from torch.utils.data import DataLoader
+#from torch.utils.data import DataLoader
+from colossalai.utils import get_dataloader
 
 from g2p_en import G2p
 
@@ -152,7 +153,7 @@ def build_dataloader(path_list,
 
     dataset = MelDataset(path_list, **dataset_config)
     collate_fn = Collater(**collate_config)
-    data_loader = DataLoader(dataset,
+    data_loader = get_dataloader(dataset,
                              batch_size=batch_size,
                              shuffle=(not validation),
                              num_workers=num_workers,

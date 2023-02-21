@@ -7,7 +7,8 @@ from torch import nn
 from torch.optim import Optimizer
 from functools import reduce
 from torch.optim import AdamW
-
+from lion_pytorch import Lion
+from colossalai.nn.lr_scheduler import OneCycleLR
 class MultiOptimizer:
     def __init__(self, optimizers={}, schedulers={}):
         self.optimizers = optimizers
@@ -54,18 +55,17 @@ def build_optimizer(parameters):
 def _define_optimizer(params):
     optimizer_params = params['optimizer_params']
     sch_params = params['scheduler_params']
-    optimizer = AdamW(
+    optimizer = Lion(
         params['params'],
         lr=optimizer_params.get('lr', 1e-4),
         weight_decay=optimizer_params.get('weight_decay', 5e-4),
-        betas=(0.9, 0.98),
-        eps=1e-9)
+        betas=(0.9, 0.98))
     scheduler = _define_scheduler(optimizer, sch_params)
     return optimizer, scheduler
 
 def _define_scheduler(optimizer, params):
     print(params)
-    scheduler = torch.optim.lr_scheduler.OneCycleLR(
+    scheduler = OneCycleLR(
         optimizer,
         max_lr=params.get('max_lr', 5e-4),
         epochs=params.get('epochs', 200),
@@ -76,7 +76,7 @@ def _define_scheduler(optimizer, params):
     return scheduler
 
 def build_multi_optimizer(parameters_dict, scheduler_params):
-    optim = dict([(key, AdamW(params, lr=1e-4, weight_decay=1e-6, betas=(0.9, 0.98), eps=1e-9))
+    optim = dict([(key, Lion(params, lr=1e-4, weight_decay=1e-6, betas=(0.9, 0.98)))
                    for key, params in parameters_dict.items()])
 
     schedulers = dict([(key, _define_scheduler(opt, scheduler_params)) \
