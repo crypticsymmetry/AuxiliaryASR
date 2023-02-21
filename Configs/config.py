@@ -11,5 +11,5 @@ clip_grad_norm = 1.0
 
 rank=0
 world_size=1
-host="0.0.0.0"
-port=29505
+host="localhost"
+port=29500
