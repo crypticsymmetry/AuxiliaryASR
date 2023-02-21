@@ -92,8 +92,8 @@ def main(config_path):
     engine, train_dataloader, test_dataloader, _ = colossalai.initialize(model,
                                                                     optimizer,
                                                                     criterion,
-                                                                    train_dataloader,
-                                                                    test_dataloader)
+                                                                    train_dataloader=train_dataloader,
+                                                                    test_dataloader=val_dataloader)
 
     trainer = Trainer(model=engine,
                     criterion=criterion,
