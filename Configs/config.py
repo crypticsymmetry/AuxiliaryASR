@@ -6,7 +6,7 @@ fp16 = dict(
 )
 
 parallel = dict(
-    tensor=dict(size=2, mode='1d')
+    tensor=dict(size=2, mode='2d')
 )
 
 gradient_accumulation = 4
