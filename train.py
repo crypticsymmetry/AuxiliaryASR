@@ -29,11 +29,10 @@ handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
 
 torch.backends.cudnn.benchmark = True
-args1 = colossalai.get_default_parser().parse_args()
+
 @click.command()
 @click.option('-p', '--config_path', default='Configs/config.yml', type=str)
 def main(config_path):
-    colossalai.launch_from_torch(config='Configs/config.py')
     config = yaml.safe_load(open(config_path))
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.mkdir(log_dir)

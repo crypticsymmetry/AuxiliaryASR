@@ -11,13 +11,12 @@ import torch
 from torch import nn
 from PIL import Image
 from tqdm import tqdm
-from colossalai.logging import get_dist_logger
 from utils import calc_wer
 
 import logging
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
-logger1 = get_dist_logger()
+
 
 from utils import *
 
@@ -29,7 +28,7 @@ class Trainer(object):
                  scheduler=None,
                  config={},
                  device=torch.device("cpu"),
-                 logger=logger1,
+                 logger=logger,
                  train_dataloader=None,
                  val_dataloader=None,
                  initial_steps=0,
