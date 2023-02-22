@@ -15,6 +15,7 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import click
+import torch.nn as nn
 
 import logging
 from logging import StreamHandler
@@ -74,6 +75,9 @@ def main(config_path):
             "epochs": epochs,
             "steps_per_epoch": len(train_dataloader),
         }
+    if torch.cuda.device_count() > 1:
+        logger.info("Using %d GPUs for training" % torch.cuda.device_count())
+        model = nn.DataParallel(model)
 
     model.to(device)
     optimizer, scheduler = build_optimizer(
