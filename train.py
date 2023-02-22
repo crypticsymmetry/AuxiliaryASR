@@ -2,8 +2,8 @@ from meldataset import build_dataloader
 from optimizers import build_optimizer
 from utils import *
 from models import build_model
-from trainer import Trainer
-#from colossalai.trainer import Trainer
+#from trainer import Trainer
+from colossalai.trainer import Trainer
 
 import os
 import os.path as osp
@@ -16,26 +16,31 @@ import torch
 from torch.utils.tensorboard import SummaryWriter
 import click
 import colossalai
-from colossalai.logging import get_dist_logger
+
 
 import logging
 from logging import StreamHandler
 
-logger1 = get_dist_logger()
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = StreamHandler()
 handler.setLevel(logging.DEBUG)
 logger.addHandler(handler)
-args1 = colossalai.get_default_parser().parse_args()
-torch.backends.cudnn.benchmark = True
 
+torch.backends.cudnn.benchmark = True
+args1 = colossalai.get_default_parser().parse_args()
 @click.command()
 @click.option('-p', '--config_path', default='Configs/config.yml', type=str)
 def main(config_path):
 
-    colossalai.launch_from_torch(config="Configs/config.py")
-
+    colossalai.launch(config='Configs/config.py',
+                        rank=args1.rank,
+                        world_size=args1.world_size,
+                        host=args1.host,
+                        port=args1.port,
+                        backend=args1.backend
+        )
     config = yaml.safe_load(open(config_path))
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.mkdir(log_dir)
@@ -48,7 +53,7 @@ def main(config_path):
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(logging.Formatter('%(levelname)s:%(asctime)s: %(message)s'))
     logger.addHandler(file_handler)
-
+    
     batch_size = config.get('batch_size', 10)
     device = config.get('device', 'cpu')
     epochs = config.get('epochs', 1000)
@@ -89,19 +94,13 @@ def main(config_path):
                 'ctc': {'blank': blank_index},
         })
     
-    engine, train_dataloader, test_dataloader, _ = colossalai.initialize(model,
-                                                                    optimizer,
-                                                                    criterion,
-                                                                    train_dataloader=train_dataloader,
-                                                                    test_dataloader=val_dataloader)
-
-    trainer = Trainer(model=engine,
+    trainer = Trainer(model=model,
                     criterion=criterion,
                     optimizer=optimizer,
                     scheduler=scheduler,
                     device=device,
                     train_dataloader=train_dataloader,
-                    val_dataloader=test_dataloader,
+                    val_dataloader=val_dataloader,
                     logger=logger)
 
     if config.get('pretrained_model', '') != '':
