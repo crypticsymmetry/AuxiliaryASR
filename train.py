@@ -2,8 +2,8 @@ from meldataset import build_dataloader
 from optimizers import build_optimizer
 from utils import *
 from models import build_model
-#from trainer import Trainer
-from colossalai.trainer import Trainer
+from trainer import Trainer
+
 
 import os
 import os.path as osp
@@ -15,8 +15,6 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import click
-import colossalai
-
 
 import logging
 from logging import StreamHandler
