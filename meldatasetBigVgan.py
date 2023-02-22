@@ -69,17 +69,17 @@ class MelDataset(torch.utils.data.Dataset):
 
         if self.mel_basis is None or self.hann_window is None:
             self.mel_basis, self.hann_window = librosa_mel_fn(
-                self.sr, MEL_PARAMS['n_fft'], MEL_PARAMS['n_mels'],
+                self.sr, MEL_PARAMS['n_fft'], MEL_PARAMS['num_mels'],
                 MEL_PARAMS['fmin'], MEL_PARAMS['fmax'], device=wave_tensor.device.type)
 
         mel_tensor = librosa.feature.melspectrogram(
             y=wave_tensor.cpu().numpy(),
             sr=self.sr,
             n_fft=MEL_PARAMS['n_fft'],
-            hop_length=MEL_PARAMS['hop_length'],
-            win_length=MEL_PARAMS['win_length'],
+            hop_length=MEL_PARAMS['hop_size'],
+            win_length=MEL_PARAMS['win_size'],
             window=self.hann_window.cpu().numpy(),
-            n_mels=MEL_PARAMS['n_mels'],
+            n_mels=MEL_PARAMS['num_mels'],
             fmin=MEL_PARAMS['fmin'],
             fmax=MEL_PARAMS['fmax']
         )
