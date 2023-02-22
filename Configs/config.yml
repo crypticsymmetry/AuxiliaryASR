@@ -1,8 +1,8 @@
 log_dir: "Checkpoint"
-save_freq: 10
+save_freq: 5
 device: "cuda"
 epochs: 200
-batch_size: 26
+batch_size: 16
 pretrained_model: ""
 train_data: "Data/Kaggle_ASR_Train_data.txt"
 val_data: "Data/Kaggle_ASR_Val_data.txt"
