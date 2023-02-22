@@ -18,7 +18,7 @@ import click
 
 import logging
 from logging import StreamHandler
-
+import colossalai
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -31,7 +31,7 @@ torch.backends.cudnn.benchmark = True
 @click.command()
 @click.option('-p', '--config_path', default='Configs/config.yml', type=str)
 def main(config_path):
-
+    colossalai.launch(config="Configs/config.yml")
     config = yaml.safe_load(open(config_path))
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.mkdir(log_dir)
