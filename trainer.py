@@ -36,7 +36,7 @@ class Trainer(object):
 
         self.steps = initial_steps
         self.epochs = initial_epochs
-        self.model = model
+        self.model = model.module
         self.criterion = criterion
         self.optimizer = optimizer
         self.scheduler = scheduler
