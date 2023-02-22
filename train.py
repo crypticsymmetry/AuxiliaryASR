@@ -27,7 +27,7 @@ class MyDataParallel(torch.nn.DataParallel):
         try:
             return super().__getattr__(name)
         except AttributeError:
-            return getattr(self.module, name)
+            return getattr(self, name)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
