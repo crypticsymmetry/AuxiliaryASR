@@ -21,6 +21,14 @@ from logging import StreamHandler
 import colossalai
 from colossalai.amp import AMP_TYPE
 
+# simple fix for dataparallel that allows access to class attributes
+class MyDataParallel(torch.nn.DataParallel):
+    def __getattr__(self, name):
+        try:
+            return super().__getattr__(name)
+        except AttributeError:
+            return getattr(self.module, name)
+
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 handler = StreamHandler()
@@ -68,7 +76,10 @@ def main(config_path):
                                       dataset_config=config.get('dataset_params', {}))
 
     model = build_model(model_params=config['model_params'] or {})
-
+    for key in model:
+        model[key] = MyDataParallel(model[key], device_ids=[0, 1])
+    for key in model_ema:
+        model_ema[key] = MyDataParallel(model_ema[key], device_ids =[0, 1])
     scheduler_params = {
             "max_lr": float(config['optimizer_params'].get('lr', 5e-4)),
             "pct_start": float(config['optimizer_params'].get('pct_start', 0.0)),
