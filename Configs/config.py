@@ -1,4 +1,8 @@
 from colossalai.amp import AMP_TYPE
+from colossalai.zero.shard_utils import TensorShardStrategy
+
+zero = dict(model_config=dict(tensor_placement_policy='cuda', shard_strategy=TensorShardStrategy()),
+            optimizer_config=dict(initial_scale=2**5))
 
 fp16 = dict(mode=AMP_TYPE.NAIVE)
 
