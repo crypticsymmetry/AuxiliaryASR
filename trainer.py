@@ -31,6 +31,7 @@ class Trainer(object):
                  logger=logger,
                  train_dataloader=None,
                  val_dataloader=None,
+                 sampler=None,
                  initial_steps=0,
                  initial_epochs=0):
 
@@ -42,6 +43,7 @@ class Trainer(object):
         self.scheduler = scheduler
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
+        self.sampler = sampler
         self.config = config
         self.device = device
         self.finish_train = False
