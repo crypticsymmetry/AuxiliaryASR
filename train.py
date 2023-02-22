@@ -30,7 +30,7 @@ logger.addHandler(handler)
 torch.backends.cudnn.benchmark = True
 
 @click.command()
-@click.option('--local_rank', default=0, type=int)
+
 @click.option('-p', '--config_path', default='Configs/config.yml', type=str)
 def main(config_path):
     torch.distributed.init_process_group(backend='nccl', init_method='env://')
