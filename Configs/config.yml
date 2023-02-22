@@ -4,7 +4,7 @@ device: "cuda"
 epochs: 200
 batch_size: 20
 pretrained_model: ""
-train_data: "Data/Kaggle_ASR_Train_data.txt"
+train_data: "Data/Kaggle_ASR_Train_data_test.txt"
 val_data: "Data/Kaggle_ASR_Val_data.txt"
 
 preprocess_parasm:

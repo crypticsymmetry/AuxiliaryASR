@@ -45,7 +45,7 @@ MEL_PARAMS = {
     "center": False,
 }
 
-class MelDataset(Dataset):
+class MelDataset(torch.utils.data.Dataset):
     def __init__(self,
                  data_list,
                  dict_path="word_index_dict.txt",
