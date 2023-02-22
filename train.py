@@ -77,7 +77,7 @@ def main(config_path):
 
     model = build_model(model_params=config['model_params'] or {})
     
-    model = MyDataParallel(model)
+    model = MyDataParallel(model, device_ids=[0, 1])
     
     scheduler_params = {
             "max_lr": float(config['optimizer_params'].get('lr', 5e-4)),
