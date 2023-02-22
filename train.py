@@ -31,7 +31,11 @@ torch.backends.cudnn.benchmark = True
 @click.command()
 @click.option('-p', '--config_path', default='Configs/config.yml', type=str)
 def main(config_path):
-    colossalai.launch(config="Configs/config.yml")
+    colossalai.launch(config="Configs/config.yml",
+                      rank=0,
+                      world_size=1,
+                      host="localhost",
+                      port=29500)
     config = yaml.safe_load(open(config_path))
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.mkdir(log_dir)
