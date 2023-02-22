@@ -5,6 +5,9 @@ fp16 = dict(
   # below are default values for grad scaler
 )
 
+parallel = dict(
+    tensor=dict(size=2, mode='1d')
+)
 
 gradient_accumulation = 4
 clip_grad_norm = 1.0
