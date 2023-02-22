@@ -5,7 +5,9 @@ fp16 = dict(
   # below are default values for grad scaler
 )
 
-
+parallel = dict(
+    pipeline=dict(size=4), # number of pipeline stages
+)
 gradient_accumulation = 4
 clip_grad_norm = 1.0
 
