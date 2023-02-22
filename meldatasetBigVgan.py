@@ -68,6 +68,9 @@ class MelDataset(torch.utils.data.Dataset):
         wave_tensor = torch.from_numpy(wave).float()
         
 
+        if self.mel_basis is None or self.hann_window is None:
+            self.mel_basis, self.hann_window = librosa_mel_fn(
+                self.sr, MEL_PARAMS['n_fft'], MEL_PARAMS['num_mels'])
 
         mel_tensor = librosa.feature.melspectrogram(
             y=wave_tensor.cpu().numpy(),
