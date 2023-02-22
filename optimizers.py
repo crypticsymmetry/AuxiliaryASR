@@ -8,7 +8,7 @@ from torch.optim import Optimizer
 from functools import reduce
 #from torch.optim import AdamW
 from lion_pytorch import Lion
-from colossalai.nn.lr_scheduler import OneCycleLR
+
 class MultiOptimizer:
     def __init__(self, optimizers={}, schedulers={}):
         self.optimizers = optimizers
