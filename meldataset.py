@@ -40,8 +40,7 @@ class MelDataset(torch.utils.data.Dataset):
     def __init__(self,
                  data_list,
                  dict_path=DEFAULT_DICT_PATH,
-                 sr=24000,
-                 sampler = None
+                 sr=24000
                 ):
 
         spect_params = SPECT_PARAMS
@@ -51,7 +50,6 @@ class MelDataset(torch.utils.data.Dataset):
         self.data_list = [data if len(data) == 3 else (*data, 0) for data in _data_list]
         self.text_cleaner = TextCleaner(dict_path)
         self.sr = sr
-        
 
         self.to_melspec = torchaudio.transforms.MelSpectrogram(**MEL_PARAMS)
         self.mean, self.std = -4, 4
@@ -146,21 +144,19 @@ class Collater(object):
 
 
 def build_dataloader(path_list,
-                     sampler,
                      validation=False,
                      batch_size=4,
                      num_workers=1,
                      device='cpu',
                      collate_config={},
                      dataset_config={}):
-    
+
     dataset = MelDataset(path_list, **dataset_config)
     collate_fn = Collater(**collate_config)
     data_loader = DataLoader(dataset,
                              batch_size=batch_size,
                              shuffle=(not validation),
                              num_workers=num_workers,
-                             sampler=sampler,
                              drop_last=(not validation),
                              collate_fn=collate_fn,
                              pin_memory=(device != 'cpu'))

@@ -15,8 +15,7 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import click
-import torch.nn as nn
-from torch.utils.data.distributed import DistributedSampler
+s
 import logging
 from logging import StreamHandler
 
@@ -30,10 +29,9 @@ logger.addHandler(handler)
 torch.backends.cudnn.benchmark = True
 
 @click.command()
-
 @click.option('-p', '--config_path', default='Configs/config.yml', type=str)
 def main(config_path):
-    torch.distributed.init_process_group(backend='nccl', init_method='env://')
+
     config = yaml.safe_load(open(config_path))
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.mkdir(log_dir)
@@ -54,14 +52,10 @@ def main(config_path):
     train_path = config.get('train_data', None)
     val_path = config.get('val_data', None)
 
-    train_sampler = DistributedSampler(train_list)
-    val_sampler = DistributedSampler(val_list)
-
     train_list, val_list = get_data_path_list(train_path, val_path)
     train_dataloader = build_dataloader(train_list,
                                         batch_size=batch_size,
                                         num_workers=8,
-                                        sampler=train_sampler,
                                         dataset_config=config.get('dataset_params', {}),
                                         device=device)
 
@@ -69,7 +63,6 @@ def main(config_path):
                                       batch_size=batch_size,
                                       validation=True,
                                       num_workers=2,
-                                      sampler=val_sampler,
                                       device=device,
                                       dataset_config=config.get('dataset_params', {}))
 
@@ -81,9 +74,6 @@ def main(config_path):
             "epochs": epochs,
             "steps_per_epoch": len(train_dataloader),
         }
-    if torch.cuda.device_count() > 1:
-        logger.info("Using %d GPUs for training" % torch.cuda.device_count())
-        model = nn.parallel.DistributedDataParallel(model)
 
     model.to(device)
     optimizer, scheduler = build_optimizer(

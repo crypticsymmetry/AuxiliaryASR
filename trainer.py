@@ -31,19 +31,17 @@ class Trainer(object):
                  logger=logger,
                  train_dataloader=None,
                  val_dataloader=None,
-                 sampler=None,
                  initial_steps=0,
                  initial_epochs=0):
 
         self.steps = initial_steps
         self.epochs = initial_epochs
-        self.model = model.module
+        self.model = model
         self.criterion = criterion
         self.optimizer = optimizer
         self.scheduler = scheduler
         self.train_dataloader = train_dataloader
         self.val_dataloader = val_dataloader
-        self.sampler = sampler
         self.config = config
         self.device = device
         self.finish_train = False
