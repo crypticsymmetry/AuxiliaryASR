@@ -15,7 +15,7 @@ import numpy as np
 import torch
 from torch.utils.tensorboard import SummaryWriter
 import click
-
+import colossalai
 import logging
 from logging import StreamHandler
 
@@ -31,6 +31,7 @@ torch.backends.cudnn.benchmark = True
 @click.command()
 @click.option('-p', '--config_path', default='Configs/config.yml', type=str)
 def main(config_path):
+    colossalai.launch_from_torch(config='Configs/config.py')
     config = yaml.safe_load(open(config_path))
     log_dir = config['log_dir']
     if not osp.exists(log_dir): os.mkdir(log_dir)
