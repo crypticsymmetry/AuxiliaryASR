@@ -19,6 +19,7 @@ import click
 import logging
 from logging import StreamHandler
 import colossalai
+from colossalai.amp import AMP_TYPE
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -84,7 +85,10 @@ def main(config_path):
     criterion = build_criterion(critic_params={
                 'ctc': {'blank': blank_index},
         })
-    
+    model, optimizer, criterion = colossalai.amp.convert_to_amp(model,
+                                                                optimizer,
+                                                                criterion,
+                                                                AMP_TYPE.TORCH)
     trainer = Trainer(model=model,
                     criterion=criterion,
                     optimizer=optimizer,

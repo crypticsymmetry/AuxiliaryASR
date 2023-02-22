@@ -4,7 +4,16 @@ from colossalai.zero.shard_utils import TensorShardStrategy
 zero = dict(model_config=dict(tensor_placement_policy='cuda', shard_strategy=TensorShardStrategy()),
             optimizer_config=dict(initial_scale=2**5))
 
-fp16 = dict(mode=AMP_TYPE.NAIVE)
+fp16=dict(
+    mode=AMP_TYPE.TORCH,
+
+    # below are default values for grad scaler
+    init_scale=2.**16,
+    growth_factor=2.0,
+    backoff_factor=0.5,
+    growth_interval=2000,
+    enabled=True
+)
 
 parallel = dict(
     pipeline=1,
