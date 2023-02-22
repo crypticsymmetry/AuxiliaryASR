@@ -58,7 +58,10 @@ class MelDataset(torch.utils.data.Dataset):
         self.g2p = G2p()
         self.mel_basis = None
         self.hann_window = None
-
+        self.n_fft = MEL_PARAMS["n_fft"]
+        self.num_mels = MEL_PARAMS["num_mels"]
+        self.fmin = MEL_PARAMS["fmin"]
+        self.fmax = MEL_PARAMS["fmax"]
     def __len__(self):
         return len(self.data_list)
 
@@ -70,7 +73,7 @@ class MelDataset(torch.utils.data.Dataset):
 
         if self.mel_basis is None or self.hann_window is None:
             self.mel_basis, self.hann_window = librosa_mel_fn(
-                self.sr, MEL_PARAMS['n_fft'], MEL_PARAMS['num_mels'])
+                self.sr, self.n_fft, self.num_mels, self.fmin, self.fmax)
 
         mel_tensor = librosa.feature.melspectrogram(
             y=wave_tensor.cpu().numpy(),
