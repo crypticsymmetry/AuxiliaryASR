@@ -67,7 +67,8 @@ class MelDataset(torch.utils.data.Dataset):
     def __getitem__(self, idx):
 
         def melSpectrogram(y, n_fft=1024, num_mels=100, sampling_rate=24000, hop_size=256, win_size=1024, fmin=0, fmax=12000, center=False):
-            
+            mel_basis = {}
+            hann_window = {}
             def dynamic_range_compression(x, C=1, clip_val=1e-5):
                 return np.log(np.clip(x, a_min=clip_val, a_max=None) * C)
 
@@ -115,6 +116,8 @@ class MelDataset(torch.utils.data.Dataset):
             spec = spectral_normalize_torch(spec)
 
             return spec
+        
+        
         data = self.data_list[idx]
         wave, text_tensor, speaker_id = self._load_tensor(data)
         wave = wave / self.MAX_WAV_VALUE
