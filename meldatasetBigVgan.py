@@ -16,6 +16,7 @@ from torch.utils.data import DataLoader
 #from colossalai.utils import get_dataloader
 import librosa
 from g2p_en import G2p
+from librosa.filters import mel as librosa_mel_fn
 
 import logging
 logger = logging.getLogger(__name__)
@@ -99,7 +100,7 @@ class MelDataset(torch.utils.data.Dataset):
             mel_basis = {}
             hann_window = {}
             if fmax not in mel_basis:
-                mel = librosa.fiters.mel(sampling_rate, n_fft, num_mels, fmin, fmax)
+                mel = librosa_mel_fn(sampling_rate, n_fft, num_mels, fmin, fmax)
                 mel_basis[str(fmax)+'_'+str(y.device)] = torch.from_numpy(mel).float().to(y.device)
                 hann_window[str(y.device)] = torch.hann_window(win_size).to(y.device)
 
