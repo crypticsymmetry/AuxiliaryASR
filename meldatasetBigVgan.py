@@ -11,15 +11,10 @@ import soundfile as sf
 import torch
 from torch import nn
 import torch.nn.functional as F
-
 import torchaudio
-from librosa.filters import mel as librosa_mel_fn
-import librosa
-
-
 from torch.utils.data import DataLoader
 #from colossalai.utils import get_dataloader
-
+import librosa
 from g2p_en import G2p
 
 import logging
@@ -35,33 +30,48 @@ SPECT_PARAMS = {
     "hop_length": 256
 }
 MEL_PARAMS = {
-    "num_mels": 100,
-    "sampling_rate": 24000,
-    "hop_size": 256,
+    "n_mels": 100,
     "n_fft": 1024,
-    "win_size": 1024,
+    "win_length": 1024,
+    "hop_length": 256,
     "fmin": 0,
-    "fmax": 12000,
-    "center": False,
+    "fmax": 12000
 }
+
+def mel_spectrogram(waveform, sr):
+    # Compute Mel spectrogram
+    mel_spect = librosa.feature.melspectrogram(y=waveform, sr=sr, **MEL_PARAMS)
+
+    # Convert to log scale (dB) using the peak power as reference
+    log_mel_spect = librosa.power_to_db(mel_spect, ref=np.max)
+
+    # Normalize the spectrogram
+    mean = np.mean(log_mel_spect)
+    std = np.std(log_mel_spect)
+    norm_mel_spect = (log_mel_spect - mean) / std
+
+    return norm_mel_spect
 
 class MelDataset(torch.utils.data.Dataset):
     def __init__(self,
                  data_list,
-                 dict_path="word_index_dict.txt",
-                 sr=24000):
+                 dict_path=DEFAULT_DICT_PATH,
+                 sr=24000
+                ):
 
-        self.data_list = [l[:-1].split('|') for l in data_list]
+        spect_params = SPECT_PARAMS
+        mel_params = MEL_PARAMS
+
+        _data_list = [l[:-1].split('|') for l in data_list]
+        self.data_list = [data if len(data) == 3 else (*data, 0) for data in _data_list]
         self.text_cleaner = TextCleaner(dict_path)
         self.sr = sr
 
+        self.to_melspec = torchaudio.transforms.MelSpectrogram(**MEL_PARAMS)
+        self.mean, self.std = -4, 4
+        
         self.g2p = G2p()
-        self.mel_basis = None
-        self.hann_window = None
-        self.n_fft = MEL_PARAMS["n_fft"]
-        self.num_mels = MEL_PARAMS["num_mels"]
-        self.fmin = MEL_PARAMS["fmin"]
-        self.fmax = MEL_PARAMS["fmax"]
+
     def __len__(self):
         return len(self.data_list)
 
@@ -69,34 +79,14 @@ class MelDataset(torch.utils.data.Dataset):
         data = self.data_list[idx]
         wave, text_tensor, speaker_id = self._load_tensor(data)
         wave_tensor = torch.from_numpy(wave).float()
-        
-
-        if self.mel_basis is None or self.hann_window is None:
-            self.mel_basis, self.hann_window = librosa_mel_fn(
-                self.sr, self.n_fft, self.num_mels, self.fmin, self.fmax)
-
-        mel_tensor = librosa.feature.melspectrogram(
-            y=wave_tensor.cpu().numpy(),
-            sr=self.sr,
-            n_fft=MEL_PARAMS['n_fft'],
-            hop_length=MEL_PARAMS['hop_size'],
-            win_length=MEL_PARAMS['win_size'],
-            window=self.hann_window,
-            n_mels=MEL_PARAMS['num_mels'],
-            fmin=MEL_PARAMS['fmin'],
-            fmax=MEL_PARAMS['fmax']
-        )
-        mel_tensor = torch.from_numpy(mel_tensor).float().to(wave_tensor.device)
-        mel_tensor = torch.log(torch.clamp(mel_tensor, min=1e-5))
+        mel_tensor = self.mel_spectrogram(wave, self.sr)
 
         if (text_tensor.size(0)+1) >= (mel_tensor.size(1) // 3):
-            mel_tensor = torch.nn.functional.interpolate(
-                mel_tensor.unsqueeze(0),
-                size=(text_tensor.size(0)+1)*3,
-                align_corners=False,
+            mel_tensor = F.interpolate(
+                mel_tensor.unsqueeze(0), size=(text_tensor.size(0)+1)*3, align_corners=False,
                 mode='linear').squeeze(0)
 
-        acoustic_feature = (mel_tensor - torch.mean(mel_tensor)) / torch.std(mel_tensor)
+        acoustic_feature = (torch.log(1e-5 + mel_tensor) - self.mean)/self.std
 
         length_feature = acoustic_feature.size(1)
         acoustic_feature = acoustic_feature[:, :(length_feature - length_feature % 2)]
