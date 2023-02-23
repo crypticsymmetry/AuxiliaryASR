@@ -58,7 +58,7 @@ class MelDataset(torch.utils.data.Dataset):
         self.g2p = G2p()
     
     def mel_spectrogram(waveform, sr):
-        waveform = waveform.item()
+        waveform = waveform.astype(np.float32)
         # Compute Mel spectrogram
         mel_spect = librosa.feature.melspectrogram(y=waveform, sr=sr, **MEL_PARAMS)
         
