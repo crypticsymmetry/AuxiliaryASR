@@ -33,9 +33,7 @@ MEL_PARAMS = {
     "n_mels": 100,
     "n_fft": 1024,
     "win_length": 1024,
-    "hop_length": 256,
-    "fmin": 0,
-    "fmax": 12000
+    "hop_length": 256
 }
 
 def mel_spectrogram(waveform, sr):
