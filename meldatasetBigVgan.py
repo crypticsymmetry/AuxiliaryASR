@@ -78,6 +78,7 @@ class MelDataset(torch.utils.data.Dataset):
         data = self.data_list[idx]
         wave, text_tensor, speaker_id = self._load_tensor(data)
         wave_tensor = torch.from_numpy(wave).float()
+        wave_tensor = wave_tensor.numpy()
         mel_tensor = self.mel_spectrogram(wave_tensor)
 
         if (text_tensor.size(0)+1) >= (mel_tensor.size(1) // 3):
