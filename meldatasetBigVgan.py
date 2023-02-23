@@ -60,7 +60,7 @@ class MelDataset(torch.utils.data.Dataset):
     def mel_spectrogram(waveform, sr):
         waveform = waveform.item()
         # Compute Mel spectrogram
-        mel_spect = librosa.feature.melspectrogram(y=waveform sr=sr, **MEL_PARAMS)
+        mel_spect = librosa.feature.melspectrogram(y=waveform, sr=sr, **MEL_PARAMS)
         
         # Convert to log scale (dB) using the peak power as reference
         log_mel_spect = librosa.power_to_db(mel_spect, ref=np.max)
