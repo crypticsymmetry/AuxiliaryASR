@@ -36,19 +36,6 @@ MEL_PARAMS = {
     "hop_length": 256
 }
 
-def mel_spectrogram(waveform, sr):
-    # Compute Mel spectrogram
-    mel_spect = librosa.feature.melspectrogram(y=waveform, sr=sr, **MEL_PARAMS)
-
-    # Convert to log scale (dB) using the peak power as reference
-    log_mel_spect = librosa.power_to_db(mel_spect, ref=np.max)
-
-    # Normalize the spectrogram
-    mean = np.mean(log_mel_spect)
-    std = np.std(log_mel_spect)
-    norm_mel_spect = (log_mel_spect - mean) / std
-
-    return norm_mel_spect
 
 class MelDataset(torch.utils.data.Dataset):
     def __init__(self,
@@ -69,6 +56,20 @@ class MelDataset(torch.utils.data.Dataset):
         self.mean, self.std = -4, 4
         
         self.g2p = G2p()
+    
+    def mel_spectrogram(waveform, sr):
+        # Compute Mel spectrogram
+        mel_spect = librosa.feature.melspectrogram(y=waveform, sr=sr, **MEL_PARAMS)
+
+        # Convert to log scale (dB) using the peak power as reference
+        log_mel_spect = librosa.power_to_db(mel_spect, ref=np.max)
+
+        # Normalize the spectrogram
+        mean = np.mean(log_mel_spect)
+        std = np.std(log_mel_spect)
+        norm_mel_spect = (log_mel_spect - mean) / std
+
+        return norm_mel_spect
 
     def __len__(self):
         return len(self.data_list)
